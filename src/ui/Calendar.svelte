@@ -1,12 +1,14 @@
 <svelte:options immutable />
 
 <script lang="ts">
+import type { App } from "obsidian";
+export let app: App;
   import type { Moment } from "moment";
   import {
     Calendar as CalendarBase,
-    ICalendarSource,
     configureGlobalMomentLocale,
   } from "obsidian-calendar-ui";
+import type { ICalendarSource } from "obsidian-calendar-ui";
   import { onDestroy } from "svelte";
 
   import type { ISettings } from "src/settings";
@@ -18,12 +20,6 @@
 
   export let displayedMonth: Moment = today;
   export let sources: ICalendarSource[];
-  export let onHoverDay: (date: Moment, targetEl: EventTarget) => boolean;
-  export let onHoverWeek: (date: Moment, targetEl: EventTarget) => boolean;
-  export let onClickDay: (date: Moment, isMetaPressed: boolean) => boolean;
-  export let onClickWeek: (date: Moment, isMetaPressed: boolean) => boolean;
-  export let onContextMenuDay: (date: Moment, event: MouseEvent) => boolean;
-  export let onContextMenuWeek: (date: Moment, event: MouseEvent) => boolean;
 
   export function tick() {
     today = window.moment();
@@ -54,14 +50,11 @@
 </script>
 
 <CalendarBase
+  app={app}
+  eventHandlers={[]}
+  getSourceSettings={() => ({ color: '', display: 'calendar-and-menu', order: 0, id: '', name: '' })}
   {sources}
   {today}
-  {onHoverDay}
-  {onHoverWeek}
-  {onContextMenuDay}
-  {onContextMenuWeek}
-  {onClickDay}
-  {onClickWeek}
   bind:displayedMonth
   localeData={today.localeData()}
   selectedId={$activeFile}

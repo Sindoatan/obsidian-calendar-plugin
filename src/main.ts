@@ -6,8 +6,8 @@ import { settings } from "./ui/stores";
 import {
   appHasPeriodicNotesPluginLoaded,
   CalendarSettingsTab,
-  ISettings,
 } from "./settings";
+import type { ISettings } from "./settings";
 import CalendarView from "./view";
 
 declare global {
@@ -76,10 +76,6 @@ export default class CalendarPlugin extends Plugin {
 
     if (this.app.workspace.layoutReady) {
       this.initLeaf();
-    } else {
-      this.registerEvent(
-        this.app.workspace.on("layout-ready", this.initLeaf.bind(this))
-      );
     }
   }
 
