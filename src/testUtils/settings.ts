@@ -6,13 +6,14 @@ export function getDefaultSettings(
   return Object.assign(
     {},
     {
-      weekStart: "sunday",
+      weekStart: "monday",
       shouldConfirmBeforeCreate: false,
-      wordsPerDot: 50,
-      showWeeklyNote: false,
+      wordsPerDot: 250,
+      showWeeklyNote: true,
       weeklyNoteFolder: "",
-      weeklyNoteFormat: "",
+      weeklyNoteFormat: "gggg-[W]ww",
       weeklyNoteTemplate: "",
+      localeOverride: "",
     },
     overrides
   );

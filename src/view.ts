@@ -103,12 +103,7 @@ export default class CalendarView extends ItemView {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       target: (this as any).contentEl,
       props: {
-        onClickDay: this.openOrCreateDailyNote,
-        onClickWeek: this.openOrCreateWeeklyNote,
-        onHoverDay: this.onHoverDay,
-        onHoverWeek: this.onHoverWeek,
-        onContextMenuDay: this.onContextMenuDay,
-        onContextMenuWeek: this.onContextMenuWeek,
+        app: this.app,
         sources,
       },
     });
@@ -302,11 +297,11 @@ export default class CalendarView extends ItemView {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mode = (this.app.vault as any).getConfig("defaultViewMode");
+
     const leaf = inNewSplit
       ? workspace.splitActiveLeaf()
       : workspace.getUnpinnedLeaf();
-    await leaf.openFile(existingFile, { active : true, mode });
+    await leaf.openFile(existingFile, { active : true });
 
     activeFile.setFile(existingFile);
   }
