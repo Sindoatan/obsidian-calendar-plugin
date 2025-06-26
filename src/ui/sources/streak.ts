@@ -5,9 +5,12 @@ export const streakSource: ICalendarSource = {
   name: "Streak",
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file) => {
+    // TODO: Replace with real streak calculation logic if available
+    // For now, return 0 if no file, or 1 if file exists
     return {
-      value: null,
+      value: file ? 1 : 0,
       dots: file ? [{ isFilled: true }] : [],
+
     };
   },
 };

@@ -6,10 +6,15 @@ export const tasksSource: ICalendarSource = {
   name: "Tasks",
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file: TFile) => {
-    const dots = file ? [{ isFilled: true }] : [];
+    if (!file) {
+      return { value: 0, dots: [] };
+    }
+    const value = await getNumberOfRemainingTasks(file);
+    const dots = await getDotsForDailyNote(file);
     return {
-      value: null,
+      value,
       dots,
+
     };
   },
 };
