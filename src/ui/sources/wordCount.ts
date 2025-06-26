@@ -44,11 +44,18 @@ export const wordCountSource: ICalendarSource = {
   id: "word-count",
   name: "Word Count",
   defaultSettings: {},
-  getMetadata: async (_granularity, _date, file) => {
-    const dots = file ? [{ isFilled: true }] : [];
+  getMetadata: async (_granularity, _date, file: TFile) => {
+    if (!file) {
+      return { value: 0, dots: [] };
+    }
+    const fileContents = await window.app.vault.cachedRead(file);
+    const wordCount = getWordCount(fileContents);
+    const numDots = await getWordLengthAsDots(file);
+    const dots = Array.from({ length: numDots }, () => ({ color: "default", isFilled: true }));
     return {
-      value: null,
+      value: wordCount,
       dots,
+  
     };
   },
 };
