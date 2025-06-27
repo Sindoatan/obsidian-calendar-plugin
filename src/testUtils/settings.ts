@@ -14,7 +14,7 @@ export function getDefaultSettings(
       showCustomTags: true,
       showStreak: true,
       showTasks: true,
-      showWeeklyNote: true,
+      showWeekNumber: true,
       weeklyNoteFolder: "",
       weeklyNoteFormat: "gggg-[W]ww",
       weeklyNoteTemplate: "",

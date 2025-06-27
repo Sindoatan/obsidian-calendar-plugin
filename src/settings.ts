@@ -17,7 +17,7 @@ export interface ISettings {
   shouldConfirmBeforeCreate: boolean;
 
   // Weekly Note settings
-  showWeeklyNote: boolean;
+  showWeekNumber: boolean; // unified toggle for week number display
   weeklyNoteFormat: string;
   weeklyNoteTemplate: string;
   weeklyNoteFolder: string;
@@ -45,8 +45,9 @@ export const defaultSettings = Object.freeze({
   showCustomTags: true,
   showStreak: true,
   showTasks: true,
+  showWeekNumber: false,
 
-  showWeeklyNote: false,
+  // showWeeklyNote removed (replaced by showWeekNumber)
   weeklyNoteFormat: "",
   weeklyNoteTemplate: "",
   weeklyNoteFolder: "",
@@ -96,11 +97,11 @@ export class CalendarSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Show all dots and counters")
       .setDesc("Master switch to show or hide all dots, counters, and captions in the calendar and pop-ups.")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.showAllDotsCounters);
-        toggle.onChange(async (value) => {
-          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-            await (window as any).calendarPluginSetOptions(() => ({ showAllDotsCounters: value }));
+        toggle.onChange(async (value: boolean) => {
+          if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+            await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showAllDotsCounters: value }));
           } else {
             this.plugin.writeOptions(() => ({ showAllDotsCounters: value }));
           }
@@ -119,9 +120,8 @@ export class CalendarSettingsTab extends PluginSettingTab {
     this.containerEl.createEl("h3", {
       text: "Weekly Note Settings",
     });
-    this.addShowWeeklyNoteSetting();
-    if (this.plugin.options.showWeeklyNote && !appHasPeriodicNotesPluginLoaded()) {
-      this.addShowWeekNumSetting();
+    this.addShowWeekNumberSetting();
+    if (this.plugin.options.showWeekNumber && !appHasPeriodicNotesPluginLoaded()) {
       this.addWeeklyNoteFormatSetting();
       this.addWeeklyNoteTemplateSetting();
       this.addWeeklyNoteFolderSetting();
@@ -137,11 +137,11 @@ export class CalendarSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Words per dot")
       .setDesc("How many words should be represented by a single dot?")
-      .addText((textfield) => {
+      .addText((textfield: import('obsidian').TextComponent) => {
+        textfield.setValue(String(this.plugin.options.wordsPerDot));
         textfield.setPlaceholder(String(DEFAULT_WORDS_PER_DOT));
         textfield.inputEl.type = "number";
-        textfield.setValue(String(this.plugin.options.wordsPerDot));
-        textfield.onChange(async (value) => {
+        textfield.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({
             wordsPerDot: value !== "" ? Number(value) : undefined,
           }));
@@ -153,12 +153,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Show word count")
       .setDesc("Display the word count on calendar dates and pop-up windows.")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.showWordCount);
         toggle.setDisabled(disabled);
-        toggle.onChange(async (value) => {
-          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-            await (window as any).calendarPluginSetOptions(() => ({ showWordCount: value }));
+        toggle.onChange(async (value: boolean) => {
+          if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+            await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showWordCount: value }));
           } else {
             this.plugin.writeOptions(() => ({ showWordCount: value }));
           }
@@ -171,12 +171,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Show custom tags")
       .setDesc("Display custom tag dots on calendar dates and pop-up windows.")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.showCustomTags);
         toggle.setDisabled(disabled);
-        toggle.onChange(async (value) => {
-          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-            await (window as any).calendarPluginSetOptions(() => ({ showCustomTags: value }));
+        toggle.onChange(async (value: boolean) => {
+          if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+            await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showCustomTags: value }));
           } else {
             this.plugin.writeOptions(() => ({ showCustomTags: value }));
           }
@@ -189,12 +189,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Show streak")
       .setDesc("Display streak dots on calendar dates and pop-up windows.")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.showStreak);
         toggle.setDisabled(disabled);
-        toggle.onChange(async (value) => {
-          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-            await (window as any).calendarPluginSetOptions(() => ({ showStreak: value }));
+        toggle.onChange(async (value: boolean) => {
+          if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+            await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showStreak: value }));
           } else {
             this.plugin.writeOptions(() => ({ showStreak: value }));
           }
@@ -203,20 +203,22 @@ export class CalendarSettingsTab extends PluginSettingTab {
       });
   }
 
-  addShowWeekNumSetting(disabled = false): void {
+  // addShowWeekNumSetting removed (use addShowWeekNumberSetting instead)
+
+  addShowWeekNumberSetting(): void {
   new Setting(this.containerEl)
     .setName("Show week number")
-    .setDesc("Display the week number in the calendar UI.")
-    .addToggle((toggle) => {
-      toggle.setValue(this.plugin.options.showWeeklyNote);
-      toggle.setDisabled(disabled);
-      toggle.onChange(async (value) => {
-        if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-          await (window as any).calendarPluginSetOptions(() => ({ showWeeklyNote: value }));
+    .setDesc("Display the week number in the calendar and weekly notes.")
+    .addToggle((toggle: import('obsidian').ToggleComponent) => {
+      toggle.setValue(this.plugin.options.showWeekNumber);
+      toggle.onChange(async (value: boolean) => {
+        if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+          await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showWeekNumber: value }));
         } else {
-          this.plugin.writeOptions(() => ({ showWeeklyNote: value }));
+          this.plugin.writeOptions(() => ({ showWeekNumber: value }));
         }
         this.app.workspace.trigger('calendar:settings-updated');
+        this.display();
       });
     });
 }
@@ -225,12 +227,12 @@ addShowTasksSetting(disabled = false): void {
     new Setting(this.containerEl)
       .setName("Show tasks")
       .setDesc("Display tasks dots on calendar dates and pop-up windows.")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.showTasks);
         toggle.setDisabled(disabled);
-        toggle.onChange(async (value) => {
-          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
-            await (window as any).calendarPluginSetOptions(() => ({ showTasks: value }));
+        toggle.onChange(async (value: boolean) => {
+          if (typeof window !== "undefined" && (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions) {
+            await (window as { calendarPluginSetOptions?: (cb: unknown) => Promise<void> }).calendarPluginSetOptions(() => ({ showTasks: value }));
           } else {
             this.plugin.writeOptions(() => ({ showTasks: value }));
           }
@@ -251,13 +253,13 @@ addWeekStartSetting(): void {
       .setDesc(
         "Choose what day of the week to start. Select 'Locale default' to use the default specified by moment.js"
       )
-      .addDropdown((dropdown) => {
+      .addDropdown((dropdown: import('obsidian').DropdownComponent) => {
         dropdown.addOption("locale", `Locale default (${localeWeekStart})`);
         localizedWeekdays.forEach((day, i) => {
           dropdown.addOption(weekdays[i], day);
         });
         dropdown.setValue(this.plugin.options.weekStart);
-        dropdown.onChange(async (value) => {
+        dropdown.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({
             weekStart: value as IWeekStartOption,
           }));
@@ -269,25 +271,12 @@ addWeekStartSetting(): void {
     new Setting(this.containerEl)
       .setName("Confirm before creating new note")
       .setDesc("Show a confirmation modal before creating a new note")
-      .addToggle((toggle) => {
+      .addToggle((toggle: import('obsidian').ToggleComponent) => {
         toggle.setValue(this.plugin.options.shouldConfirmBeforeCreate);
-        toggle.onChange(async (value) => {
+        toggle.onChange(async (value: boolean) => {
           this.plugin.writeOptions(() => ({
             shouldConfirmBeforeCreate: value,
           }));
-        });
-      });
-  }
-
-  addShowWeeklyNoteSetting(): void {
-    new Setting(this.containerEl)
-      .setName("Show week number")
-      .setDesc("Enable this to add a column with the week number")
-      .addToggle((toggle) => {
-        toggle.setValue(this.plugin.options.showWeeklyNote);
-        toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showWeeklyNote: value }));
-          this.display(); // show/hide weekly settings
         });
       });
   }
@@ -296,10 +285,10 @@ addWeekStartSetting(): void {
     new Setting(this.containerEl)
       .setName("Weekly note format")
       .setDesc("For more syntax help, refer to format reference")
-      .addText((textfield) => {
+      .addText((textfield: import('obsidian').TextComponent) => {
         textfield.setValue(this.plugin.options.weeklyNoteFormat);
         textfield.setPlaceholder(DEFAULT_WEEK_FORMAT);
-        textfield.onChange(async (value) => {
+        textfield.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({ weeklyNoteFormat: value }));
         });
       });
@@ -311,9 +300,9 @@ addWeekStartSetting(): void {
       .setDesc(
         "Choose the file you want to use as the template for your weekly notes"
       )
-      .addText((textfield) => {
+      .addText((textfield: import('obsidian').TextComponent) => {
         textfield.setValue(this.plugin.options.weeklyNoteTemplate);
-        textfield.onChange(async (value) => {
+        textfield.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({ weeklyNoteTemplate: value }));
         });
       });
@@ -323,17 +312,17 @@ addWeekStartSetting(): void {
     new Setting(this.containerEl)
       .setName("Weekly note folder")
       .setDesc("New weekly notes will be placed here")
-      .addText((textfield) => {
+      .addText((textfield: import('obsidian').TextComponent) => {
         textfield.setValue(this.plugin.options.weeklyNoteFolder);
-        textfield.onChange(async (value) => {
+        textfield.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({ weeklyNoteFolder: value }));
         });
       });
   }
 
   addLocaleOverrideSetting(): void {
-    const { moment } = window;
-
+    // Use global moment import
+    const moment: typeof import('moment') | undefined = typeof window !== 'undefined' && (window as any).moment ? (window as any).moment : undefined;
     const sysLocale = navigator.language?.toLowerCase();
 
     new Setting(this.containerEl)
@@ -341,13 +330,15 @@ addWeekStartSetting(): void {
       .setDesc(
         "Set this if you want to use a locale different from the default"
       )
-      .addDropdown((dropdown) => {
+      .addDropdown((dropdown: import('obsidian').DropdownComponent) => {
         dropdown.addOption("system-default", `Same as system (${sysLocale})`);
-        moment.locales().forEach((locale) => {
-          dropdown.addOption(locale, locale);
-        });
+        if (moment && moment.locales) {
+          moment.locales().forEach((locale: string) => {
+            dropdown.addOption(locale, locale);
+          });
+        }
         dropdown.setValue(this.plugin.options.localeOverride);
-        dropdown.onChange(async (value) => {
+        dropdown.onChange(async (value: string) => {
           this.plugin.writeOptions(() => ({
             localeOverride: value as ILocaleOverride,
           }));
@@ -355,3 +346,5 @@ addWeekStartSetting(): void {
       });
   }
 }
+
+

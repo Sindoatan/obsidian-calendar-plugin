@@ -1,7 +1,6 @@
 import type { ICalendarSource } from "obsidian-calendar-ui";
 import { get } from "svelte/store";
 import { settings as settingsStore } from "../stores";
-import { settings } from "../stores";
 
 export const streakSource: ICalendarSource = {
   id: "streak",
