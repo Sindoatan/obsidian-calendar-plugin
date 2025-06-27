@@ -38,7 +38,7 @@
     existingFile: TFile,
     inNewSplit: boolean
   ) => boolean;
-  console.log('[Calendar UI] Day.svelte: onClick prop:', typeof onClick, onClick);
+  // console.log('[Calendar UI] Day.svelte: onClick prop:', typeof onClick, onClick);
   export let onContextMenu: (
     granularity: IGranularity,
     date: Moment,
@@ -61,7 +61,7 @@
   });
 
   function handleClick(event: MouseEvent, meta: IDayMetadata) {
-    console.log('[Calendar UI] Day.svelte: handleClick called', date.format(), file);
+    // console.log('[Calendar UI] Day.svelte: handleClick called', date.format(), file);
     if (onClick) {
       onClick("day", date, file, isMetaPressed(event));
     } else {
@@ -121,7 +121,8 @@
       class:today="{date.isSame(today, 'day')}"
       draggable="{true}"
       {...getAttributes(metadata)}
-      on:click="{(event) => { console.log('[Calendar UI] <div class=day> direct click', event.target); handleClick(event, metadata); }}"
+      on:click="{(event) => { // console.log('[Calendar UI] <div class=day> direct click', event.target);
+      handleClick(event, metadata); }}"
       on:contextmenu="{handleContextmenu}"
       on:pointerenter="{(event) => handleHover(event, metadata)}"
       on:pointerleave="{endHover}"
@@ -135,9 +136,6 @@
 
 <style>
   .day {
-  background: #ff0033 !important;
-  pointer-events: all !important;
-
     background-color: var(--color-background-day);
     border-radius: 4px;
     color: var(--color-text-day);

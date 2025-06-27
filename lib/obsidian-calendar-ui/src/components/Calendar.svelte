@@ -2,16 +2,16 @@
 
 <script lang="ts">
 document.addEventListener('click', (e) => {
-  console.log('[Calendar UI] Global document click:', e.target);
+  // console.log('[Calendar UI] Global document click:', e.target);
 });
 window.onerror = function(msg, url, line, col, error) {
-  console.error('[Calendar UI] window.onerror:', msg, url, line, col, error);
+  // console.error('[Calendar UI] window.onerror:', msg, url, line, col, error);
 };
 window.addEventListener('error', function(e) {
-  console.error('[Calendar UI] window error event:', e);
+  // console.error('[Calendar UI] window error event:', e);
 });
-console.log('[Patched local obsidian-calendar-ui] Calendar.svelte loaded');
-console.log("[Patched obsidian-calendar-ui] Calendar.svelte loaded");
+// console.log('[Patched local obsidian-calendar-ui] Calendar.svelte loaded');
+// console.log("[Patched obsidian-calendar-ui] Calendar.svelte loaded");
   import { App, debounce } from "obsidian";
   import type { Locale } from "moment";
 import type { Moment } from "moment";

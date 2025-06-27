@@ -67,25 +67,25 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
   // Handler for day cell click
   function handleDayClick(granularity: string, date: Moment, file: TFile, inNewSplit: boolean) {
     if (granularity === "day") {
-      console.log('[Calendar] handleDayClick', { date: date.format(), inNewSplit });
+      // console.log('[Calendar] handleDayClick', { date: date.format(), inNewSplit });
       onDayClick(app, date, inNewSplit);
     }
   }
   // Handler for week number click
   function handleWeekClick(granularity: string, date: Moment, file: TFile, inNewSplit: boolean) {
     if (granularity === "week") {
-      console.log('[Calendar] handleWeekClick', { date: date.format(), inNewSplit });
+      // console.log('[Calendar] handleWeekClick', { date: date.format(), inNewSplit });
       onWeekClick(app, date, inNewSplit);
     }
   }
   // Handler for context menu (optional, for completeness)
   function handleContextMenu(granularity: string, date: Moment, file: TFile, event: MouseEvent) {
-    console.log('[Calendar] handleContextMenu', { granularity, date: date.format() });
+    // console.log('[Calendar] handleContextMenu', { granularity, date: date.format() });
     // Implement context menu logic if needed
   }
   // Handler for hover (optional, for completeness)
   function handleHover(granularity: string, date: Moment, file: TFile, targetEl: EventTarget, isMetaPressed: boolean) {
-    console.log('[Calendar] handleHover', { granularity, date: date.format(), isMetaPressed });
+    // console.log('[Calendar] handleHover', { granularity, date: date.format(), isMetaPressed });
     // Implement hover logic if needed
   }
 </script>
