@@ -1,6 +1,8 @@
 <svelte:options immutable />
 
 <script lang="ts">
+let calendarBaseRef: any; // Reference to CalendarBase instance for fileCache access
+
 // Provide getSourceSettings to CalendarBase for correct popup captions
 function getSourceSettings(sourceId: string) {
   const source = sources.find((s) => s.id === sourceId);
@@ -47,6 +49,21 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
     weeklyNotes.reindex();
     return window.moment();
   }
+
+  export let unsubscribeSettings = settings.subscribe(() => {
+    // Force metadata refresh for all notes in fileCache
+    if (calendarBaseRef && calendarBaseRef.fileCache && typeof calendarBaseRef.fileCache.onFileModified === "function") {
+      const notes = calendarBaseRef.fileCache.store && typeof calendarBaseRef.fileCache.store.subscribe === "function"
+        ? Object.values(calendarBaseRef.fileCache.store.get())
+        : [];
+      for (const file of notes) {
+        if (file) calendarBaseRef.fileCache.onFileModified(file);
+      }
+    }
+    // Also reindex daily and weekly notes for completeness
+    dailyNotes.reindex();
+    weeklyNotes.reindex();
+  });
 
   // 1 minute heartbeat to keep `today` reflecting the current day
   let heartbeat = setInterval(() => {
@@ -105,4 +122,5 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
     handleContextMenu,
     handleHover
   ]}
+  bind:this={calendarBaseRef}
 />

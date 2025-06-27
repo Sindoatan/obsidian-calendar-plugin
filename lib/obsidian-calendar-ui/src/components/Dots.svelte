@@ -13,7 +13,7 @@
 </script>
 
 <div class="dot-container" class:centered>
-  {#if metadata}
+  {#if metadata && metadata.some(meta => Array.isArray(meta.dots) && meta.dots.length > 0)}
     {#each sortedMeta as { color, display, dots = [] }}
       {#if display === "calendar-and-menu"}
         {#each dots.slice(0, MAX_DOTS_PER_SOURCE) as dot}

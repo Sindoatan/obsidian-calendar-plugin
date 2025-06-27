@@ -1,4 +1,6 @@
 import type { ICalendarSource } from "obsidian-calendar-ui";
+import { get } from "svelte/store";
+import { settings } from "../stores";
 import type { TFile } from "obsidian";
 
 export const tasksSource: ICalendarSource = {
@@ -7,14 +9,20 @@ export const tasksSource: ICalendarSource = {
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file: TFile) => {
     if (!file) {
-      return { value: 0, dots: [] };
+      return { value: undefined, dots: undefined };
+    }
+    const { showAllDotsCounters = true, showTasks = true } = get(settings);
+    if (!showAllDotsCounters) {
+      return { value: undefined, dots: undefined };
+    }
+    if (!showTasks) {
+      return { value: undefined, dots: undefined };
     }
     const value = await getNumberOfRemainingTasks(file);
     const dots = await getDotsForDailyNote(file);
     return {
       value,
       dots,
-
     };
   },
 };

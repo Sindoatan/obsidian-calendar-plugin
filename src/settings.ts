@@ -8,6 +8,11 @@ import type CalendarPlugin from "./main";
 
 export interface ISettings {
   wordsPerDot: number;
+  showAllDotsCounters: boolean;
+  showWordCount: boolean;
+  showCustomTags: boolean;
+  showStreak: boolean;
+  showTasks: boolean;
   weekStart: IWeekStartOption;
   shouldConfirmBeforeCreate: boolean;
 
@@ -35,6 +40,11 @@ export const defaultSettings = Object.freeze({
   weekStart: "locale" as IWeekStartOption,
 
   wordsPerDot: DEFAULT_WORDS_PER_DOT,
+  showAllDotsCounters: true,
+  showWordCount: true,
+  showCustomTags: true,
+  showStreak: true,
+  showTasks: true,
 
   showWeeklyNote: false,
   weeklyNoteFormat: "",
@@ -78,6 +88,25 @@ export class CalendarSettingsTab extends PluginSettingTab {
       text: "General Settings",
     });
     this.addDotThresholdSetting();
+
+    // Dots & Counters Visibility Group
+    this.containerEl.createEl("h4", { text: "Dots & Counters Visibility" });
+    new Setting(this.containerEl)
+      .setName("Show all dots and counters")
+      .setDesc("Master switch to show or hide all dots, counters, and captions in the calendar and pop-ups.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showAllDotsCounters);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({ showAllDotsCounters: value }));
+          this.display(); // Immediately refresh settings UI
+        });
+      });
+    if (this.plugin.options.showAllDotsCounters) {
+      this.addShowWordCountSetting();
+      this.addShowCustomTagsSetting();
+      this.addShowStreakSetting();
+      this.addShowTasksSetting();
+    }
     this.addWeekStartSetting();
     this.addConfirmCreateSetting();
     this.addShowWeeklyNoteSetting();
@@ -121,7 +150,59 @@ export class CalendarSettingsTab extends PluginSettingTab {
       });
   }
 
-  addWeekStartSetting(): void {
+  addShowWordCountSetting(disabled = false): void {
+    new Setting(this.containerEl)
+      .setName("Show word count")
+      .setDesc("Display the word count on calendar dates and pop-up windows.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showWordCount);
+        toggle.setDisabled(disabled);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({ showWordCount: value }));
+        });
+      });
+  }
+  
+  addShowCustomTagsSetting(disabled = false): void {
+    new Setting(this.containerEl)
+      .setName("Show custom tags")
+      .setDesc("Display custom tag dots on calendar dates and pop-up windows.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showCustomTags);
+        toggle.setDisabled(disabled);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({ showCustomTags: value }));
+        });
+      });
+  }
+
+  addShowStreakSetting(disabled = false): void {
+    new Setting(this.containerEl)
+      .setName("Show streak")
+      .setDesc("Display streak dots on calendar dates and pop-up windows.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showStreak);
+        toggle.setDisabled(disabled);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({ showStreak: value }));
+        });
+      });
+  }
+
+  addShowTasksSetting(disabled = false): void {
+    new Setting(this.containerEl)
+      .setName("Show tasks")
+      .setDesc("Display tasks dots on calendar dates and pop-up windows.")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showTasks);
+        toggle.setDisabled(disabled);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({ showTasks: value }));
+        });
+      });
+  }
+
+addWeekStartSetting(): void {
     const { moment } = window;
 
     const localizedWeekdays = moment.weekdays();

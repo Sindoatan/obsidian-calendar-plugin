@@ -1,6 +1,6 @@
 # `obsidian-calendar-ui`
 
-The UI package that powers the [Obsidian Calendar plugin](https://github.com/liamcain/obsidian-calendar-plugin).
+The UI package that powers the [Obsidian Calendar plugin](https://github.com/Sindoatan/obsidian-calendar-plugin).
 
 ## The problem
 

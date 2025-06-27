@@ -16,12 +16,14 @@
   <div class="showcase">
     {#each showcaseItems as showcaseItem}
       <div class="showcase-item">
+        {#if showcaseItem.value !== undefined}
         <div class="item-value">
           {showcaseItem.value}<!--
           -->{#if showcaseItem.goal}
             <span class="goal">/{showcaseItem.goal}</span>
           {/if}
         </div>
+        {/if}
         <div class="item-name">
           <svg
             class="showcase-dot"
@@ -38,9 +40,11 @@
   <div class="overflow-items">
     {#each overflowItems as overflowItem}
       <div class="overflow-item" class:empty="{!overflowItem.value}">
+        {#if overflowItem.value !== undefined}
         <div class="item-value">
           {overflowItem.value}
         </div>
+        {/if}
         <svg class="dot" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
           <circle
             fill="{overflowItem.value ? overflowItem.color : 'currentColor'}"
