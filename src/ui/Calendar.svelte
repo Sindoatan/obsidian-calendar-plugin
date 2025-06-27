@@ -16,13 +16,13 @@ function getSourceSettings(sourceId: string) {
   return { color: '', display: 'calendar-and-menu', order: 0, id: sourceId, name: '' };
 }
 
-import type { App } from "obsidian";
+import type { App, TFile } from "obsidian";
 export let app: App;
 import type { Moment } from "moment";
 import {
   Calendar as CalendarBase,
   configureGlobalMomentLocale,
-} from "obsidian-calendar-ui";
+} from "../../lib/obsidian-calendar-ui";
 import type { ICalendarSource } from "obsidian-calendar-ui";
 import { onDestroy } from "svelte";
 
@@ -64,17 +64,34 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
     clearInterval(heartbeat);
   });
 
-  // The order of handlers must match CalendarBase's eventHandlers contract.
-  // [0]: day-click, [1]: week-click
-  const calendarEventHandlers = [
-    (date: Moment, inNewSplit: boolean = false) => onDayClick(app, date, inNewSplit),
-    (date: Moment, inNewSplit: boolean = false) => onWeekClick(app, date, inNewSplit),
-  ];
+  // Handler for day cell click
+  function handleDayClick(granularity: string, date: Moment, file: TFile, inNewSplit: boolean) {
+    if (granularity === "day") {
+      console.log('[Calendar] handleDayClick', { date: date.format(), inNewSplit });
+      onDayClick(app, date, inNewSplit);
+    }
+  }
+  // Handler for week number click
+  function handleWeekClick(granularity: string, date: Moment, file: TFile, inNewSplit: boolean) {
+    if (granularity === "week") {
+      console.log('[Calendar] handleWeekClick', { date: date.format(), inNewSplit });
+      onWeekClick(app, date, inNewSplit);
+    }
+  }
+  // Handler for context menu (optional, for completeness)
+  function handleContextMenu(granularity: string, date: Moment, file: TFile, event: MouseEvent) {
+    console.log('[Calendar] handleContextMenu', { granularity, date: date.format() });
+    // Implement context menu logic if needed
+  }
+  // Handler for hover (optional, for completeness)
+  function handleHover(granularity: string, date: Moment, file: TFile, targetEl: EventTarget, isMetaPressed: boolean) {
+    console.log('[Calendar] handleHover', { granularity, date: date.format(), isMetaPressed });
+    // Implement hover logic if needed
+  }
 </script>
 
 <CalendarBase
   app={app}
-  eventHandlers={calendarEventHandlers}
   getSourceSettings={getSourceSettings}
   {sources}
   {today}
@@ -82,4 +99,10 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
   localeData={today.localeData()}
   selectedId={$activeFile}
   showWeekNums={$settings.showWeeklyNote}
+  eventHandlers={[
+    handleDayClick,
+    handleWeekClick,
+    handleContextMenu,
+    handleHover
+  ]}
 />
