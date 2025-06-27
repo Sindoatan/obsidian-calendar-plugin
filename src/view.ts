@@ -27,6 +27,8 @@ import {
 export default class CalendarView extends ItemView {
   private calendar: Calendar;
   private settings: ISettings;
+  private displayedMonth: any;
+
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
@@ -53,6 +55,13 @@ export default class CalendarView extends ItemView {
         this.onNoteSettingsUpdate
       )
     );
+    // Listen for calendar settings update events and force calendar re-render
+    this.registerEvent(
+      (<any>this.app.workspace).on(
+        "calendar:settings-updated",
+        this.onCalendarSettingsUpdated.bind(this)
+      )
+    );
     this.registerEvent(this.app.vault.on("create", this.onFileCreated));
     this.registerEvent(this.app.vault.on("delete", this.onFileDeleted));
     this.registerEvent(this.app.vault.on("modify", this.onFileModified));
@@ -71,6 +80,14 @@ export default class CalendarView extends ItemView {
 
   getViewType(): string {
     return VIEW_TYPE_CALENDAR;
+  }
+
+  private onCalendarSettingsUpdated(): void {
+    // Destroy and re-create the calendar Svelte component to force a full refresh
+    if (this.calendar) {
+      this.calendar.$destroy();
+    }
+    this.onOpen();
   }
 
   getDisplayText(): string {
@@ -99,13 +116,22 @@ export default class CalendarView extends ItemView {
     ];
     this.app.workspace.trigger(TRIGGER_ON_OPEN, sources);
 
+    // Destroy previous calendar instance if it exists
+    if (this.calendar) {
+      this.calendar.$destroy();
+    }
+    // Initialize displayedMonth to today
+    const moment = (window as any).moment;
+    this.displayedMonth = moment();
     this.calendar = new Calendar({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       target: (this as any).contentEl,
       props: {
         app: this.app,
         sources,
+        displayedMonth: this.displayedMonth
       },
+      hydrate: false
     });
   }
 

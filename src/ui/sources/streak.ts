@@ -1,5 +1,6 @@
 import type { ICalendarSource } from "obsidian-calendar-ui";
 import { get } from "svelte/store";
+import { settings as settingsStore } from "../stores";
 import { settings } from "../stores";
 
 export const streakSource: ICalendarSource = {
@@ -7,7 +8,9 @@ export const streakSource: ICalendarSource = {
   name: "Streak",
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file) => {
-    const { showAllDotsCounters = true, showStreak = true } = get(settings);
+    const opts = get(settingsStore);
+    const { showAllDotsCounters = true, showStreak = true } = opts;
+
     if (!showAllDotsCounters) {
       return { value: undefined, dots: undefined };
     }

@@ -8,6 +8,7 @@ import {
   CalendarSettingsTab,
 } from "./settings";
 import type { ISettings } from "./settings";
+import { defaultSettings } from "./settings";
 import CalendarView from "./view";
 
 declare global {
@@ -29,6 +30,9 @@ export default class CalendarPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
+    // Ensure settings are loaded from disk before anything else
+    await this.loadOptions();
+
     this.register(
       settings.subscribe((value) => {
         this.options = value;
@@ -77,6 +81,14 @@ export default class CalendarPlugin extends Plugin {
     if (this.app.workspace.layoutReady) {
       this.initLeaf();
     }
+    this.onloadComplete();
+  }
+
+  // Expose a global setter for settings so the Svelte UI can always persist changes
+  onloadComplete() {
+    (window as any).calendarPluginSetOptions = async (changeOpts: (settings: ISettings) => Partial<ISettings>) => {
+      await this.writeOptions(changeOpts);
+    };
   }
 
   initLeaf(): void {
@@ -90,20 +102,22 @@ export default class CalendarPlugin extends Plugin {
 
   async loadOptions(): Promise<void> {
     const options = await this.loadData();
-    settings.update((old) => {
-      return {
-        ...old,
-        ...(options || {}),
-      };
-    });
-
+    if (options) {
+      settings.set({ ...defaultSettings, ...options });
+      this.options = { ...defaultSettings, ...options };
+    } else {
+      settings.set(defaultSettings);
+      this.options = defaultSettings;
+    }
     await this.saveData(this.options);
   }
 
   async writeOptions(
     changeOpts: (settings: ISettings) => Partial<ISettings>
   ): Promise<void> {
-    settings.update((old) => ({ ...old, ...changeOpts(old) }));
-    await this.saveData(this.options);
+    const updated = { ...this.options, ...changeOpts(this.options) };
+    this.options = updated;
+    settings.set(updated); // Only set once for full reactivity
+    await this.saveData(updated);
   }
 }

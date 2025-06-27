@@ -1,8 +1,8 @@
 import type { ICalendarSource } from "obsidian-calendar-ui";
 import { get } from "svelte/store";
-
-
+import { settings as settingsStore } from "../stores";
 import { settings } from "../stores";
+
 import { getWordCount, clamp } from "../utils";
 
 const NUM_MAX_DOTS = 5;
@@ -45,7 +45,9 @@ export const wordCountSource: ICalendarSource = {
   name: "Word Count",
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file: TFile) => {
-    const { showAllDotsCounters = true, showWordCount = true } = get(settings);
+    const opts = get(settingsStore);
+    const { showAllDotsCounters = true, showWordCount = true } = opts;
+
     if (!showAllDotsCounters) {
       return { value: undefined, dots: undefined };
     }

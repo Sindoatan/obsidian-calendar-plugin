@@ -1,6 +1,8 @@
 import type { ICalendarSource } from "obsidian-calendar-ui";
 import { get } from "svelte/store";
-import { settings } from "../stores";
+import { settings as settingsStore } from "../stores";
+
+
 import type { TFile } from "obsidian";
 
 export const customTagsSource: ICalendarSource = {
@@ -8,7 +10,9 @@ export const customTagsSource: ICalendarSource = {
   name: "Custom Tags",
   defaultSettings: {},
   getMetadata: async (_granularity, _date, file: TFile) => {
-    const { showAllDotsCounters = true, showCustomTags = true } = get(settings);
+    const opts = get(settingsStore);
+    const { showAllDotsCounters = true, showCustomTags = true } = opts;
+
     if (!showAllDotsCounters) {
       return { value: undefined, dots: undefined };
     }

@@ -29,57 +29,39 @@ import type { ICalendarSource } from "obsidian-calendar-ui";
 import { onDestroy } from "svelte";
 
 import type { ISettings } from "src/settings";
+
+// Svelte store subscription for settings
+let currentSettings;
+const unsubscribe = settings.subscribe(val => { currentSettings = val; });
+onDestroy(unsubscribe);
 import { activeFile, dailyNotes, settings, weeklyNotes } from "./stores";
+import { derived } from "svelte/store";
+
+
 import { onDayClick, onWeekClick } from "./calendarEventHandlers";
 
-  let today: Moment;
+let today: Moment;
+let localeData;
+export let displayedMonth: Moment;
+export let sources: ICalendarSource[];
 
+
+
+  // Reactively update today and localeData when settings change
   $: today = getToday($settings);
+  $: localeData = today.localeData();
 
-  export let displayedMonth: Moment = today;
-  export let sources: ICalendarSource[];
-
-  export function tick() {
-    today = window.moment();
+  // Reactively reindex notes when settings change
+  $: {
+    dailyNotes.reindex();
+    weeklyNotes.reindex();
   }
 
   function getToday(settings: ISettings) {
     configureGlobalMomentLocale(settings.localeOverride, settings.weekStart);
-    dailyNotes.reindex();
-    weeklyNotes.reindex();
     return window.moment();
   }
 
-  export let unsubscribeSettings = settings.subscribe(() => {
-    // Force metadata refresh for all notes in fileCache
-    if (calendarBaseRef && calendarBaseRef.fileCache && typeof calendarBaseRef.fileCache.onFileModified === "function") {
-      const notes = calendarBaseRef.fileCache.store && typeof calendarBaseRef.fileCache.store.subscribe === "function"
-        ? Object.values(calendarBaseRef.fileCache.store.get())
-        : [];
-      for (const file of notes) {
-        if (file) calendarBaseRef.fileCache.onFileModified(file);
-      }
-    }
-    // Also reindex daily and weekly notes for completeness
-    dailyNotes.reindex();
-    weeklyNotes.reindex();
-  });
-
-  // 1 minute heartbeat to keep `today` reflecting the current day
-  let heartbeat = setInterval(() => {
-    tick();
-
-    const isViewingCurrentMonth = displayedMonth.isSame(today, "day");
-    if (isViewingCurrentMonth) {
-      // if it's midnight on the last day of the month, this will
-      // update the display to show the new month.
-      displayedMonth = today;
-    }
-  }, 1000 * 60);
-
-  onDestroy(() => {
-    clearInterval(heartbeat);
-  });
 
   // Handler for day cell click
   function handleDayClick(granularity: string, date: Moment, file: TFile, inNewSplit: boolean) {
@@ -110,7 +92,7 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
 <CalendarBase
   app={app}
   getSourceSettings={getSourceSettings}
-  {sources}
+  sources={sources}
   {today}
   bind:displayedMonth
   localeData={today.localeData()}

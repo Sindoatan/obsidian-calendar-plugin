@@ -87,17 +87,24 @@ export class CalendarSettingsTab extends PluginSettingTab {
     this.containerEl.createEl("h3", {
       text: "General Settings",
     });
-    this.addDotThresholdSetting();
+    this.addWeekStartSetting();
+    this.addConfirmCreateSetting();
 
     // Dots & Counters Visibility Group
     this.containerEl.createEl("h4", { text: "Dots & Counters Visibility" });
+    this.addDotThresholdSetting();
     new Setting(this.containerEl)
       .setName("Show all dots and counters")
       .setDesc("Master switch to show or hide all dots, counters, and captions in the calendar and pop-ups.")
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.options.showAllDotsCounters);
         toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showAllDotsCounters: value }));
+          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+            await (window as any).calendarPluginSetOptions(() => ({ showAllDotsCounters: value }));
+          } else {
+            this.plugin.writeOptions(() => ({ showAllDotsCounters: value }));
+          }
+          this.app.workspace.trigger('calendar:settings-updated');
           this.display(); // Immediately refresh settings UI
         });
       });
@@ -107,22 +114,14 @@ export class CalendarSettingsTab extends PluginSettingTab {
       this.addShowStreakSetting();
       this.addShowTasksSetting();
     }
-    this.addWeekStartSetting();
-    this.addConfirmCreateSetting();
-    this.addShowWeeklyNoteSetting();
 
-    if (
-      this.plugin.options.showWeeklyNote &&
-      !appHasPeriodicNotesPluginLoaded()
-    ) {
-      this.containerEl.createEl("h3", {
-        text: "Weekly Note Settings",
-      });
-      this.containerEl.createEl("p", {
-        cls: "setting-item-description",
-        text:
-          "Note: Weekly Note settings are moving. You are encouraged to install the 'Periodic Notes' plugin to keep the functionality in the future.",
-      });
+    // Weekly Note Settings
+    this.containerEl.createEl("h3", {
+      text: "Weekly Note Settings",
+    });
+    this.addShowWeeklyNoteSetting();
+    if (this.plugin.options.showWeeklyNote && !appHasPeriodicNotesPluginLoaded()) {
+      this.addShowWeekNumSetting();
       this.addWeeklyNoteFormatSetting();
       this.addWeeklyNoteTemplateSetting();
       this.addWeeklyNoteFolderSetting();
@@ -158,7 +157,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
         toggle.setValue(this.plugin.options.showWordCount);
         toggle.setDisabled(disabled);
         toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showWordCount: value }));
+          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+            await (window as any).calendarPluginSetOptions(() => ({ showWordCount: value }));
+          } else {
+            this.plugin.writeOptions(() => ({ showWordCount: value }));
+          }
+          this.app.workspace.trigger('calendar:settings-updated');
         });
       });
   }
@@ -171,7 +175,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
         toggle.setValue(this.plugin.options.showCustomTags);
         toggle.setDisabled(disabled);
         toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showCustomTags: value }));
+          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+            await (window as any).calendarPluginSetOptions(() => ({ showCustomTags: value }));
+          } else {
+            this.plugin.writeOptions(() => ({ showCustomTags: value }));
+          }
+          this.app.workspace.trigger('calendar:settings-updated');
         });
       });
   }
@@ -184,12 +193,35 @@ export class CalendarSettingsTab extends PluginSettingTab {
         toggle.setValue(this.plugin.options.showStreak);
         toggle.setDisabled(disabled);
         toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showStreak: value }));
+          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+            await (window as any).calendarPluginSetOptions(() => ({ showStreak: value }));
+          } else {
+            this.plugin.writeOptions(() => ({ showStreak: value }));
+          }
+          this.app.workspace.trigger('calendar:settings-updated');
         });
       });
   }
 
-  addShowTasksSetting(disabled = false): void {
+  addShowWeekNumSetting(disabled = false): void {
+  new Setting(this.containerEl)
+    .setName("Show week number")
+    .setDesc("Display the week number in the calendar UI.")
+    .addToggle((toggle) => {
+      toggle.setValue(this.plugin.options.showWeeklyNote);
+      toggle.setDisabled(disabled);
+      toggle.onChange(async (value) => {
+        if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+          await (window as any).calendarPluginSetOptions(() => ({ showWeeklyNote: value }));
+        } else {
+          this.plugin.writeOptions(() => ({ showWeeklyNote: value }));
+        }
+        this.app.workspace.trigger('calendar:settings-updated');
+      });
+    });
+}
+
+addShowTasksSetting(disabled = false): void {
     new Setting(this.containerEl)
       .setName("Show tasks")
       .setDesc("Display tasks dots on calendar dates and pop-up windows.")
@@ -197,7 +229,12 @@ export class CalendarSettingsTab extends PluginSettingTab {
         toggle.setValue(this.plugin.options.showTasks);
         toggle.setDisabled(disabled);
         toggle.onChange(async (value) => {
-          this.plugin.writeOptions(() => ({ showTasks: value }));
+          if (typeof window !== "undefined" && (window as any).calendarPluginSetOptions) {
+            await (window as any).calendarPluginSetOptions(() => ({ showTasks: value }));
+          } else {
+            this.plugin.writeOptions(() => ({ showTasks: value }));
+          }
+          this.app.workspace.trigger('calendar:settings-updated');
         });
       });
   }
