@@ -7,7 +7,7 @@ import {
   getWeeklyNoteSettings,
 } from "obsidian-daily-notes-interface";
 import { FileView, TFile, ItemView, WorkspaceLeaf } from "obsidian";
-import { get } from "svelte/store";
+import { get, derived } from "svelte/store";
 
 import { TRIGGER_ON_OPEN, VIEW_TYPE_CALENDAR } from "src/constants";
 import { tryToCreateDailyNote } from "src/io/dailyNotes";
@@ -64,7 +64,8 @@ export default class CalendarView extends ItemView {
 
       // Refresh the calendar if settings change
       if (this.calendar) {
-        this.calendar.tick();
+        this.calendar.$destroy();
+        this.onOpen();
       }
     });
   }
@@ -89,23 +90,28 @@ export default class CalendarView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
+    const staticSources = [customTagsSource, streakSource, tasksSource];
+    const sourcesStore = derived(wordCountSource, ($wordCountSource) => {
+      return [...staticSources, $wordCountSource];
+    });
+
     // Integration point: external plugins can listen for `calendar:open`
     // to feed in additional sources.
-    const sources = [
-      customTagsSource,
-      streakSource,
-      wordCountSource,
-      tasksSource,
-    ];
-    this.app.workspace.trigger(TRIGGER_ON_OPEN, sources);
+    this.app.workspace.trigger(TRIGGER_ON_OPEN, sourcesStore);
 
     this.calendar = new Calendar({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       target: (this as any).contentEl,
       props: {
         app: this.app,
-        sources,
+        sources: get(sourcesStore),
       },
+    });
+
+    sourcesStore.subscribe((sources) => {
+      if (this.calendar) {
+        this.calendar.$set({ sources });
+      }
     });
   }
 

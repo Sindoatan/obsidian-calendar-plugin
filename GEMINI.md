@@ -1,5 +1,6 @@
 always use copy-main-to-obsidian.sh to put successfully builded plugin for me to testing before finishing task.
-you can check new console log messages after my plugin tests in this folder /home/sindo/win-obsidian-logs
+you can check new console log messages after my plugin tests in this folder /home/sindo/win-obsidian-logs.
+Right before task task finalizing, give me a brief summary of changes maded.
 
 Core Persona & Approach
 

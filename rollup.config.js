@@ -1,12 +1,13 @@
-require("dotenv").config();
-import svelte from "rollup-plugin-svelte";
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import typescript from "@rollup/plugin-typescript";
-import autoPreprocess from "svelte-preprocess";
-import { env } from "process";
+const svelte = require("rollup-plugin-svelte");
+const resolve = require("@rollup/plugin-node-resolve");
+const commonjs = require("@rollup/plugin-commonjs");
+const typescript = require("@rollup/plugin-typescript");
+const autoPreprocess = require("svelte-preprocess");
+const { env } = require("process");
 
-export default {
+require("dotenv").config();
+
+module.exports = {
   input: "src/main.ts",
   output: {
     format: "cjs",
