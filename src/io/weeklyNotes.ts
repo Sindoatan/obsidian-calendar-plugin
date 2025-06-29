@@ -60,6 +60,9 @@ export async function tryToCreateWeeklyNote(
         if (resolvedTemplate && resolvedTemplate instanceof TFile) {
           content = await vault.read(resolvedTemplate);
           console.log('[CalendarPlugin] Loaded weekly note template:', resolvedTemplate.path);
+          // Replace template variables (e.g., {{date}} and {{date:FORMAT}}) with actual values
+          content = content.replace(/{{date(?::([^}]+))?}}/gi, (_, fmt) => date.format(fmt || 'YYYY-MM-DD'));
+          // Add more replacements here if needed
         } else {
           console.warn('[CalendarPlugin] Weekly note template file not found:', templatePath);
         }
