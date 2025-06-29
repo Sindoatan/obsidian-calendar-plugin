@@ -67,9 +67,46 @@ import { onDayClick, onWeekClick } from "./calendarEventHandlers";
   // The order of handlers must match CalendarBase's eventHandlers contract.
   // [0]: day-click, [1]: week-click
   const calendarEventHandlers = [
-    (date: Moment, inNewSplit: boolean = false) => onDayClick(app, date, inNewSplit),
-    (date: Moment, inNewSplit: boolean = false) => onWeekClick(app, date, inNewSplit),
-  ];
+  // Wrapper for day click
+  (...args: any[]) => {
+    let dateArg = args[0];
+    let inNewSplit = args[1] ?? false;
+    // obsidian-calendar-ui sometimes passes ('day', date, ...), so normalize
+    if (dateArg === 'day' && args.length > 1) {
+      dateArg = args[1];
+      inNewSplit = args[2] ?? false;
+      console.log('[CalendarPlugin] calendarEventHandlers[0] detected string "day" as first arg, using second arg as date:', dateArg);
+    }
+    // If not a Moment, try to convert
+    if (typeof dateArg === 'string' || typeof dateArg === 'number' || Array.isArray(dateArg)) {
+      dateArg = window.moment(dateArg);
+      console.log('[CalendarPlugin] calendarEventHandlers[0] coerced dateArg to moment:', dateArg);
+    }
+    return onDayClick(app, dateArg, inNewSplit);
+  },
+  // Wrapper for week click
+  (...args: any[]) => {
+    let dateArg = args[0];
+    let inNewSplit = args[1] ?? false;
+    // Handle legacy signature: ('week', date, ...)
+    if (dateArg === 'week' && args.length > 1) {
+      dateArg = args[1];
+      inNewSplit = args[2] ?? false;
+      console.log('[CalendarPlugin] calendarEventHandlers[1] detected string "week" as first arg, using second arg as date:', dateArg);
+    }
+    // Coerce to Moment if possible
+    if (!dateArg || typeof dateArg !== 'object' || typeof dateArg.isValid !== 'function') {
+      dateArg = window.moment(dateArg);
+      console.log('[CalendarPlugin] calendarEventHandlers[1] coerced dateArg to moment:', dateArg);
+    }
+    // Final check: is Moment and valid
+    if (!dateArg || typeof dateArg.isValid !== 'function' || !dateArg.isValid()) {
+      console.error('[CalendarPlugin] calendarEventHandlers[1] could not coerce valid dateArg for week click:', args);
+      return;
+    }
+    return onWeekClick(app, dateArg, inNewSplit);
+  },
+];
 </script>
 
 <CalendarBase
