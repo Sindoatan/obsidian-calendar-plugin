@@ -86,7 +86,7 @@ export async function tryToCreateWeeklyNote(
         }
       }
       weeklyNotes.reindex();
-      const leaf = inNewSplit ? workspace.splitActiveLeaf() : workspace.getUnpinnedLeaf();
+      const leaf = workspace.getLeaf(inNewSplit);
       await leaf.openFile(weeklyNote, { active: true });
       console.log('[CalendarPlugin] Weekly note opened after creation:', weeklyNote?.path);
       cb?.(weeklyNote);

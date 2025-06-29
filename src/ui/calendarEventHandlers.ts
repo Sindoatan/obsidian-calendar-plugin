@@ -18,9 +18,7 @@ export async function onDayClick(app: App, date: Moment, inNewSplit = false) {
   const dailyNoteFile = getDailyNote(date, get(dailyNotes));
   if (dailyNoteFile) {
     console.log('[CalendarPlugin] Daily note exists, opening:', dailyNoteFile.path);
-    const leaf = inNewSplit
-      ? app.workspace.splitActiveLeaf()
-      : app.workspace.getUnpinnedLeaf();
+    const leaf = app.workspace.getLeaf(inNewSplit);
     await leaf.openFile(dailyNoteFile, { active: true });
     activeFile.setFile(dailyNoteFile);
     console.log('[CalendarPlugin] Daily note opened:', dailyNoteFile.path);
@@ -45,9 +43,7 @@ export async function onWeekClick(app: App, date: Moment, inNewSplit = false) {
   const weekFile = getWeeklyNote(date, get(weeklyNotes));
   if (weekFile) {
     console.log('[CalendarPlugin] Weekly note exists, opening:', weekFile.path);
-    const leaf = inNewSplit
-      ? app.workspace.splitActiveLeaf()
-      : app.workspace.getUnpinnedLeaf();
+    const leaf = app.workspace.getLeaf(inNewSplit);
     await leaf.openFile(weekFile, { active: true });
     activeFile.setFile(weekFile);
     console.log('[CalendarPlugin] Weekly note opened:', weekFile.path);
