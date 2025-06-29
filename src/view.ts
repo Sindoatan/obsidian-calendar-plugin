@@ -90,10 +90,28 @@ export default class CalendarView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
-    const staticSources = [customTagsSource, streakSource, tasksSource];
-    const sourcesStore = derived(wordCountSource, ($wordCountSource) => {
-      return [...staticSources, $wordCountSource];
-    });
+    const sourcesStore = derived(
+      [settings, wordCountSource],
+      ([$settings, $wordCountSource]) => {
+        if (!$settings.enableDotCounters) {
+          return [];
+        }
+        const sources = [];
+        if ($settings.showWordCount) {
+          sources.push($wordCountSource);
+        }
+        if ($settings.showTasks) {
+          sources.push(tasksSource);
+        }
+        if ($settings.showStreaks) {
+          sources.push(streakSource);
+        }
+        if ($settings.showTags) {
+          sources.push(customTagsSource);
+        }
+        return sources;
+      }
+    );
 
     // Integration point: external plugins can listen for `calendar:open`
     // to feed in additional sources.

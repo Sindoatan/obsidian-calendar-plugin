@@ -7,9 +7,16 @@ import { DEFAULT_WEEK_FORMAT, DEFAULT_WORDS_PER_DOT } from "src/constants";
 import type CalendarPlugin from "./main";
 
 export interface ISettings {
-  wordsPerDot: number;
   weekStart: IWeekStartOption;
   shouldConfirmBeforeCreate: boolean;
+
+  // Dot Counter settings
+  enableDotCounters: boolean;
+  wordsPerDot: number;
+  showWordCount: boolean;
+  showTasks: boolean;
+  showStreaks: boolean;
+  showTags: boolean;
 
   // Weekly Note settings
   showWeeklyNote: boolean;
@@ -34,7 +41,12 @@ export const defaultSettings = Object.freeze({
   shouldConfirmBeforeCreate: true,
   weekStart: "locale" as IWeekStartOption,
 
+  enableDotCounters: true,
   wordsPerDot: DEFAULT_WORDS_PER_DOT,
+  showWordCount: true,
+  showTasks: true,
+  showStreaks: true,
+  showTags: true,
 
   showWeeklyNote: false,
   weeklyNoteFormat: "",
@@ -77,23 +89,33 @@ export class CalendarSettingsTab extends PluginSettingTab {
     this.containerEl.createEl("h3", {
       text: "General Settings",
     });
-    this.addDotThresholdSetting();
     this.addWeekStartSetting();
     this.addConfirmCreateSetting();
-    this.addShowWeeklyNoteSetting();
 
-    if (
-      this.plugin.options.showWeeklyNote &&
-      !appHasPeriodicNotesPluginLoaded()
-    ) {
-      this.containerEl.createEl("h3", {
-        text: "Weekly Note Settings",
-      });
+    this.containerEl.createEl("h3", {
+      text: "Dot Counters",
+    });
+    this.addEnableDotCountersSetting();
+    if (this.plugin.options.enableDotCounters) {
+      this.addDotThresholdSetting();
+      this.addShowWordCountSetting();
+      this.addShowTasksSetting();
+      this.addShowStreaksSetting();
+      this.addShowTagsSetting();
+    }
+
+    this.containerEl.createEl("h3", {
+      text: "Weekly Note Settings",
+    });
+    if (!appHasPeriodicNotesPluginLoaded()) {
       this.containerEl.createEl("p", {
         cls: "setting-item-description",
         text:
           "Note: Weekly Note settings are moving. You are encouraged to install the 'Periodic Notes' plugin to keep the functionality in the future.",
       });
+    }
+    this.addShowWeeklyNoteSetting();
+    if (this.plugin.options.showWeeklyNote) {
       this.addWeeklyNoteFormatSetting();
       this.addWeeklyNoteTemplateSetting();
       this.addWeeklyNoteFolderSetting();
@@ -116,6 +138,77 @@ export class CalendarSettingsTab extends PluginSettingTab {
         textfield.onChange(async (value) => {
           this.plugin.writeOptions(() => ({
             wordsPerDot: value !== "" ? Number(value) : undefined,
+          }));
+        });
+      });
+  }
+
+  addEnableDotCountersSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Enable dot counters")
+      .setDesc("Enable or disable all dot counters")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.enableDotCounters);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            enableDotCounters: value,
+          }));
+          this.display();
+        });
+      });
+  }
+
+  addShowWordCountSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Word count")
+      .setDesc("Show a dot for word count")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showWordCount);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            showWordCount: value,
+          }));
+        });
+      });
+  }
+
+  addShowTasksSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Tasks")
+      .setDesc("Show a dot for tasks")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showTasks);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            showTasks: value,
+          }));
+        });
+      });
+  }
+
+  addShowStreaksSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Streaks")
+      .setDesc("Show a dot for streaks")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showStreaks);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            showStreaks: value,
+          }));
+        });
+      });
+  }
+
+  addShowTagsSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Tags")
+      .setDesc("Show a dot for tags")
+      .addToggle((toggle) => {
+        toggle.setValue(this.plugin.options.showTags);
+        toggle.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            showTags: value,
           }));
         });
       });
