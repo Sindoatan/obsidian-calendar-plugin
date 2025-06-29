@@ -12,6 +12,7 @@
     "test:watch": "yarn test -- --watch"
   },
   "dependencies": {
+    "dotenv": "^17.0.0",
     "obsidian": "obsidianmd/obsidian-api#master",
     "obsidian-calendar-ui": "^0.4.0",
     "obsidian-daily-notes-interface": "0.9.0",
