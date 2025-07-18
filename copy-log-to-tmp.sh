@@ -1,2 +1,7 @@
 #!/bin/bash
-cp /home/sindo/win-obsidian-logs/console-log.DESKTOP-J1Q2PIC.2025-07-18.ndjson /home/sindo/obsidian-calendar-plugin/tmp/
+LOG_DIR="/home/sindo/win-obsidian-logs"
+TMP_DIR="/home/sindo/obsidian-calendar-plugin/tmp"
+NEWEST_LOG=$(ls -t "$LOG_DIR"/console-log.*.ndjson 2>/dev/null | head -n 1)
+if [ -n "$NEWEST_LOG" ]; then
+  tail -n 1000 "$NEWEST_LOG" > "$TMP_DIR/latest-log.ndjson"
+fi
